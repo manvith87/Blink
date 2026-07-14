@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blink — Spot the free courses before they're gone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #16181D;
+    --ink-soft: #23262E;
+    --paper: #ECE7D8;
+    --paper-dim: #E2DCC9;
+    --bulb: #FFC93C;
+    --bulb-dim: #8a7027;
+    --cobalt: #2A4BD7;
+    --stamp: #C8432B;
+    --line: #C9C2AC;
+    --line-dark: #3A3D45;
+    --text-on-paper: #1D1B16;
+    --text-dim: #6b654f;
+    --radius: 10px;
+    --maxw: 1180px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--text-on-paper);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+  button{font-family:inherit;}
+
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 28px;}
+
+  ::selection{background:var(--bulb); color:var(--ink);}
+
+  :focus-visible{
+    outline:3px solid var(--cobalt);
+    outline-offset:2px;
+  }
+
+  /* ---------- Bulb blink ---------- */
+  @keyframes blink{
+    0%, 45%{ opacity:1; box-shadow:0 0 8px 2px rgba(255,201,60,.9);}
+    50%, 95%{ opacity:.25; box-shadow:0 0 2px 0 rgba(255,201,60,.2);}
+    100%{opacity:1;}
+  }
+  .bulb{
+    display:inline-block;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--bulb);
+    animation:blink 1.8s infinite steps(1,end);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bulb{ animation:none; opacity:1; box-shadow:0 0 6px 1px rgba(255,201,60,.8);}
+    .marquee-track{ animation:none !important; }
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:var(--paper);
+    border-bottom:2px solid var(--ink);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 0;
+    gap:24px;
+  }
+  .logo{
+    display:flex; align-items:center; gap:9px;
+    font-family:'Anton', sans-serif;
+    font-size:28px;
+    letter-spacing:.5px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .logo .bulb{margin-bottom:3px;}
+  nav.links{
+    display:flex; gap:28px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  nav.links a{text-decoration:none; color:var(--text-dim); border-bottom:2px solid transparent; padding-bottom:3px;}
+  nav.links a:hover{color:var(--ink); border-bottom-color:var(--bulb);}
+  .nav-cta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    background:var(--ink); color:var(--paper);
+    padding:9px 16px;
+    border-radius:6px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+  @media (max-width:780px){
+    nav.links{display:none;}
+  }
+  .nav-right{
+    display:flex; align-items:center; gap:12px;
+  }
+  .account-btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    background:transparent;
+    color:var(--ink);
+    border:1.5px solid var(--ink);
+    padding:8.5px 15px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .account-btn:hover{ background:var(--paper-dim); }
+  .user-pill{
+    display:flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    padding:7.5px 14px 7.5px 10px;
+    border-radius:999px;
+    cursor:pointer;
+    white-space:nowrap;
+    max-width:180px;
+  }
+  .user-pill span.name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .user-pill .bulb{ flex-shrink:0; }
+
+  /* ---------- Auth / profile modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(22,24,29,.72);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:300;
+    padding:20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    max-width:420px; width:100%;
+    max-height:88vh; overflow-y:auto;
+    padding:30px 28px 28px;
+    position:relative;
+  }
+  .modal-close{
+    position:absolute; top:14px; right:14px;
+    background:none; border:none;
+    font-size:22px; line-height:1;
+    cursor:pointer; color:var(--ink);
+    padding:4px;
+  }
+  .modal-tabs{
+    display:flex; gap:4px;
+    margin-bottom:22px;
+    border-bottom:2px solid var(--ink);
+  }
+  .modal-tab{
+    flex:1; padding:10px 4px;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; text-transform:uppercase; letter-spacing:.04em;
+    background:none; border:none; cursor:pointer;
+    color:var(--text-dim);
+    border-bottom:3px solid transparent;
+    margin-bottom:-2px;
+  }
+  .modal-tab.active{ color:var(--ink); border-bottom-color:var(--bulb); font-weight:700; }
+  .modal-title{
+    font-family:'Anton', sans-serif;
+    font-size:25px;
+    margin:0 0 5px;
+    letter-spacing:.2px;
+  }
+  .modal-sub{
+    font-size:13px; color:var(--text-dim);
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+  .form-field{ margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+  .form-field label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--text-dim);
+  }
+  .form-field input, .form-field textarea{
+    padding:11px 13px;
+    border:2px solid var(--ink);
+    border-radius:8px;
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    background:#fff;
+    color:var(--text-on-paper);
+  }
+  .form-field textarea{ resize:vertical; min-height:66px; }
+  .form-hint{ font-size:11.5px; color:var(--text-dim); margin-top:-2px; }
+  .form-msg{
+    padding:10px 13px;
+    border-radius:8px;
+    font-size:13px;
+    margin-bottom:14px;
+    display:none;
+    line-height:1.4;
+  }
+  .form-msg.show{ display:block; }
+  .form-msg.error{ background:#FBE6E1; border:1px solid var(--stamp); color:#8f2e1c; }
+  .form-msg.success{ background:#E4EFDF; border:1px solid #3f7d3a; color:#2e5c2a; }
+  .modal-submit{
+    width:100%;
+    background:var(--bulb); color:var(--ink);
+    font-weight:700; font-size:15px;
+    padding:13px; border:none; border-radius:8px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .modal-submit:hover{ filter:brightness(.96); }
+  .modal-submit:disabled{ opacity:.6; cursor:default; }
+  .modal-switch{
+    text-align:center; font-size:13px; color:var(--text-dim);
+    margin-top:16px;
+  }
+  .modal-switch button{
+    background:none; border:none; color:var(--cobalt);
+    font-weight:600; cursor:pointer; padding:0; font-size:13px;
+  }
+  .profile-head{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom:6px;
+  }
+  .logout-btn{
+    background:none; border:none;
+    color:var(--stamp);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px; text-transform:uppercase; letter-spacing:.04em;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .form-divider{
+    border-top:1px dashed var(--line);
+    margin:18px 0 16px;
+    padding-top:4px;
+  }
+
+  /* ---------- Hero: marquee board ---------- */
+  .hero{
+    padding:56px 0 40px;
+  }
+  .board{
+    background:var(--ink);
+    border-radius:16px;
+    padding:3px;
+    position:relative;
+  }
+  .board-bulbs{
+    position:absolute; inset:0;
+    border-radius:16px;
+    pointer-events:none;
+  }
+  .board-inner{
+    background:var(--ink);
+    border-radius:14px;
+    padding:52px 44px 36px;
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--line-dark);
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--bulb);
+    font-size:13px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:18px;
+  }
+  .headline{
+    font-family:'Anton', sans-serif;
+    color:var(--paper);
+    font-size:clamp(38px, 6vw, 74px);
+    line-height:0.98;
+    letter-spacing:.5px;
+    margin:0 0 20px;
+    max-width:820px;
+  }
+  .headline .hl{color:var(--bulb);}
+  .sub{
+    color:#C8C4B6;
+    font-size:17px;
+    max-width:560px;
+    line-height:1.55;
+    margin:0 0 30px;
+  }
+  .hero-actions{
+    display:flex; gap:14px; flex-wrap:wrap;
+    margin-bottom:40px;
+  }
+  .btn-primary{
+    background:var(--bulb); color:var(--ink);
+    font-weight:700;
+    padding:13px 24px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:15px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-ghost{
+    background:transparent; color:var(--paper);
+    border:1.5px solid var(--line-dark);
+    padding:13px 24px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .btn-ghost:hover{border-color:var(--bulb); color:var(--bulb);}
+
+  /* ticker */
+  .marquee{
+    border-top:1px dashed var(--line-dark);
+    padding-top:18px;
+    overflow:hidden;
+    white-space:nowrap;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .marquee-track{
+    display:inline-flex;
+    gap:36px;
+    animation:scroll 32s linear infinite;
+  }
+  .marquee-track span{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:#9a9587;
+    letter-spacing:.03em;
+  }
+  .marquee-track span b{color:var(--bulb); font-weight:500;}
+  @keyframes scroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+
+  /* ---------- Stats strip ---------- */
+  .stats{
+    display:flex; gap:0;
+    margin-top:26px;
+    border:1.5px solid var(--ink);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .stat{
+    flex:1;
+    padding:18px 20px;
+    border-right:1.5px solid var(--ink);
+  }
+  .stat:last-child{border-right:none;}
+  .stat b{
+    display:block;
+    font-family:'Anton', sans-serif;
+    font-size:30px;
+    letter-spacing:.3px;
+  }
+  .stat span{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    letter-spacing:.05em;
+  }
+  @media (max-width:640px){
+    .stats{flex-wrap:wrap;}
+    .stat{flex:1 1 50%; border-bottom:1.5px solid var(--ink);}
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    padding:44px 0 20px;
+  }
+  .controls-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:18px;
+    flex-wrap:wrap; gap:10px;
+  }
+  .controls-head h2{
+    font-family:'Anton', sans-serif;
+    font-size:26px;
+    margin:0;
+    letter-spacing:.3px;
+  }
+  #resultCount{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .search-row{
+    display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .search-row input[type="search"]{
+    flex:1; min-width:220px;
+    padding:13px 16px;
+    border:2px solid var(--ink);
+    border-radius:8px;
+    background:#fff;
+    font-family:'Work Sans', sans-serif;
+    font-size:15px;
+  }
+  .search-row select{
+    padding:13px 14px;
+    border:2px solid var(--ink);
+    border-radius:8px;
+    background:#fff;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .pills{
+    display:flex; gap:9px; flex-wrap:wrap;
+  }
+  .pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    padding:9px 15px;
+    border-radius:999px;
+    border:1.5px solid var(--ink);
+    background:transparent;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .pill.active{
+    background:var(--ink);
+    color:var(--bulb);
+  }
+  .pill:hover:not(.active){
+    background:var(--paper-dim);
+  }
+
+  /* ---------- Grid / cards ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+    gap:22px;
+    padding:26px 0 70px;
+  }
+  .card{
+    background:#fff;
+    border:1.5px solid var(--ink);
+    border-radius:12px;
+    padding:22px 20px 20px;
+    position:relative;
+    display:flex; flex-direction:column;
+    gap:12px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:5px 5px 0 var(--ink);
+  }
+  .card::before, .card::after{
+    content:"";
+    position:absolute;
+    width:16px; height:16px;
+    background:var(--paper);
+    border:1.5px solid var(--ink);
+    border-radius:50%;
+    top:50%;
+    transform:translateY(-50%);
+  }
+  .card::before{ left:-9px; }
+  .card::after{ right:-9px; }
+  .card-top{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+  }
+  .status{
+    display:flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    color:var(--bulb-dim);
+    letter-spacing:.05em;
+  }
+  .platform-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper);
+    padding:4px 10px;
+    border-radius:5px;
+    letter-spacing:.04em;
+  }
+  .card h3{
+    font-family:'Anton', sans-serif;
+    font-size:21px;
+    line-height:1.15;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  .card p{
+    margin:0;
+    font-size:14px;
+    line-height:1.5;
+    color:#4a463b;
+    flex:1;
+  }
+  .meta-row{
+    display:flex; gap:14px; flex-wrap:wrap;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+  .card-cta{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    margin-top:2px;
+  }
+  .grab{
+    text-decoration:none;
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .grab:hover{ color:var(--cobalt); }
+  .grab .arrow{ transition:transform .15s ease; }
+  .grab:hover .arrow{ transform:translateX(3px); }
+  .category-tag{
+    font-size:11px;
+    font-family:'JetBrains Mono', monospace;
+    color:var(--stamp);
+    border:1px solid var(--stamp);
+    padding:3px 8px;
+    border-radius:5px;
+    text-transform:uppercase;
+  }
+
+  .empty{
+    display:none;
+    text-align:center;
+    padding:60px 20px;
+    font-family:'JetBrains Mono', monospace;
+    color:var(--text-dim);
+  }
+  .empty.show{display:block;}
+
+  /* ---------- How it works ---------- */
+  .how{
+    background:var(--ink);
+    padding:64px 0;
+    margin-top:10px;
+  }
+  .how h2{
+    font-family:'Anton', sans-serif;
+    color:var(--paper);
+    font-size:32px;
+    margin:0 0 34px;
+  }
+  .how-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    gap:28px;
+  }
+  .how-item{
+    border-left:2px solid var(--bulb);
+    padding-left:18px;
+  }
+  .how-item .num{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--bulb);
+    font-size:12px;
+    letter-spacing:.1em;
+  }
+  .how-item h4{
+    font-family:'Anton', sans-serif;
+    color:var(--paper);
+    font-size:19px;
+    margin:8px 0 8px;
+    letter-spacing:.2px;
+  }
+  .how-item p{
+    color:#B7B3A5;
+    font-size:14px;
+    line-height:1.55;
+    margin:0;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:40px 0 50px;
+    border-top:2px solid var(--ink);
+  }
+  .foot-row{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:20px;
+  }
+  .foot-note{
+    max-width:480px;
+    font-size:13px;
+    color:var(--text-dim);
+    line-height:1.6;
+  }
+  .foot-brand{
+    font-family:'Anton', sans-serif;
+    font-size:22px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .foot-links{
+    display:flex; gap:20px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo"><span class="bulb"></span>BLINK</a>
+    <nav class="links">
+      <a href="#browse">Browse</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#how">How it works</a>
+    </nav>
+    <div class="nav-right">
+      <a class="nav-cta" href="#browse">Find a course</a>
+      <div id="accountArea">
+        <button class="account-btn" id="authTrigger" type="button">Sign in</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="board">
+        <div class="board-inner">
+          <div class="eyebrow"><span class="bulb"></span> Live free-course board · updated weekly</div>
+          <h1 class="headline">Free courses<br><span class="hl">don't stay lit</span> for long.</h1>
+          <p class="sub">Blink rounds up courses that are free right now across Coursera, Udemy, edX and more — so you can grab one before the free window closes.</p>
+          <div class="hero-actions">
+            <a href="#browse" class="btn-primary">Browse the board</a>
+            <a href="#how" class="btn-ghost">How we track "free"</a>
+          </div>
+          <div class="marquee">
+            <div class="marquee-track" id="marqueeTrack"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b id="statTotal">0</b><span>Free finds listed</span></div>
+        <div class="stat"><b id="statPlatforms">0</b><span>Platforms tracked</span></div>
+        <div class="stat"><b>Weekly</b><span>Board refresh</span></div>
+        <div class="stat"><b>$0</b><span>Cost to browse</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="controls" id="browse">
+    <div class="wrap">
+      <div class="controls-head">
+        <h2>The board</h2>
+        <span id="resultCount">— results</span>
+      </div>
+
+      <div class="search-row">
+        <input type="search" id="searchInput" placeholder="Search by title, skill, or platform…" aria-label="Search free courses">
+        <select id="categorySelect" aria-label="Filter by category">
+          <option value="all">All categories</option>
+        </select>
+      </div>
+
+      <div class="pills" id="platformPills"></div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="grid" id="courseGrid"></div>
+    <div class="empty" id="emptyState">No blinking matches. Try clearing a filter — the board refills fast.</div>
+  </div>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <h2>How the board stays honest</h2>
+      <div class="how-grid">
+        <div class="how-item">
+          <div class="num">01</div>
+          <h4>We flag the access type</h4>
+          <p>Most listings here are free to audit — you can learn the material at no cost, even if a graded certificate costs extra. That's marked on every card.</p>
+        </div>
+        <div class="how-item">
+          <div class="num">02</div>
+          <h4>Availability can shift</h4>
+          <p>Platforms rotate free access without much notice. Tap through and confirm price before you commit real hours.</p>
+        </div>
+        <div class="how-item">
+          <div class="num">03</div>
+          <h4>No account, no paywall</h4>
+          <p>Blink itself is just a directory. Browsing, searching and filtering here will never ask you to sign up.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="platforms">
+  <div class="wrap foot-row">
+    <div>
+      <div class="foot-brand"><span class="bulb"></span>BLINK</div>
+      <p class="foot-note">A directory of free courses on Coursera, Udemy, edX, freeCodeCamp, Khan Academy and MIT OpenCourseWare. Always double-check the current price on the platform — free access changes without warning.</p>
+    </div>
+    <div class="foot-links">
+      <span>Coursera</span>
+      <span>Udemy</span>
+      <span>edX</span>
+      <span>freeCodeCamp</span>
+      <span>Khan Academy</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Point this at your running backend (see blink-server/README.md).
+  // Leave it as-is during local dev; if the backend isn't reachable,
+  // Blink just keeps showing the built-in list below — nothing breaks.
+  const API_BASE_URL = "http://localhost:3000";
+
+  const courses = [
+    {title:"CS50: Introduction to Computer Science", platform:"edX", category:"Programming", level:"Beginner", duration:"~10 wks", access:"Free to audit", blurb:"Harvard's flagship intro course — problem sets in C, Python, SQL and web dev.", url:"https://www.edx.org/search?q=CS50"},
+    {title:"Python for Everybody", platform:"Coursera", category:"Programming", level:"Beginner", duration:"~8 wks", access:"Free to audit", blurb:"University of Michigan's gentle on-ramp into Python, data structures and web scraping.", url:"https://www.coursera.org/search?query=Python%20for%20Everybody"},
+    {title:"The Complete Web Developer Course", platform:"Udemy", category:"Programming", level:"Beginner", duration:"~30 hrs", access:"Free preview", blurb:"HTML, CSS and JS fundamentals with a project-based structure. Watch the free preview lessons before buying.", url:"https://www.udemy.com/courses/search/?q=web%20developer%20course%20free"},
+    {title:"Responsive Web Design", platform:"freeCodeCamp", category:"Programming", level:"Beginner", duration:"~300 hrs", access:"Fully free", blurb:"Build real projects while earning a free certification — no paywall anywhere in the curriculum.", url:"https://www.freecodecamp.org/learn/2022/responsive-web-design/"},
+    {title:"Machine Learning Specialization", platform:"Coursera", category:"AI & ML", level:"Intermediate", duration:"~3 mo", access:"Free to audit", blurb:"Andrew Ng's refreshed classic — regression, neural nets and recommender systems from first principles.", url:"https://www.coursera.org/search?query=Machine%20Learning%20Specialization"},
+    {title:"Elements of AI", platform:"Other", category:"AI & ML", level:"Beginner", duration:"~30 hrs", access:"Fully free", blurb:"University of Helsinki's plain-language tour of what AI can and can't do, no coding required.", url:"https://www.elementsofai.com/"},
+    {title:"Deep Learning with PyTorch", platform:"Udemy", category:"AI & ML", level:"Intermediate", duration:"~17 hrs", access:"Free preview", blurb:"Hands-on tensors, autograd and neural network training with runnable notebooks.", url:"https://www.udemy.com/courses/search/?q=pytorch%20free"},
+    {title:"MIT 6.0001: Intro to CS and Programming", platform:"MIT OCW", category:"Programming", level:"Beginner", duration:"~13 wks", access:"Fully free", blurb:"Full MIT lecture videos, problem sets and exams — the whole course, no login wall.", url:"https://ocw.mit.edu/search/?q=6.0001"},
+    {title:"Google Data Analytics", platform:"Coursera", category:"Data Science", level:"Beginner", duration:"~6 mo", access:"Free to audit", blurb:"Spreadsheets, SQL and Tableau taught the way Google trains its own analysts.", url:"https://www.coursera.org/search?query=Google%20Data%20Analytics"},
+    {title:"Data Science Math Skills", platform:"Coursera", category:"Data Science", level:"Beginner", duration:"~4 wks", access:"Free to audit", blurb:"The set theory, probability and linear algebra that data science courses assume you already know.", url:"https://www.coursera.org/search?query=Data%20Science%20Math%20Skills"},
+    {title:"Introduction to Statistics", platform:"Khan Academy", category:"Data Science", level:"Beginner", duration:"Self-paced", access:"Fully free", blurb:"Distributions, sampling and hypothesis testing, taught in short videos with instant practice checks.", url:"https://www.khanacademy.org/math/statistics-probability"},
+    {title:"SQL for Data Analysis", platform:"Udemy", category:"Data Science", level:"Beginner", duration:"~4 hrs", access:"Free preview", blurb:"Joins, aggregates and window functions using real query exercises.", url:"https://www.udemy.com/courses/search/?q=sql%20free"},
+    {title:"Financial Markets", platform:"Coursera", category:"Business", level:"Beginner", duration:"~7 wks", access:"Free to audit", blurb:"Yale's Robert Shiller on risk, behavioral finance and how markets actually move money.", url:"https://www.coursera.org/search?query=Financial%20Markets"},
+    {title:"Digital Marketing Fundamentals", platform:"Other", category:"Marketing", level:"Beginner", duration:"~40 hrs", access:"Fully free", blurb:"Google's own certification covering search, social and analytics basics, exam included.", url:"https://learndigital.withgoogle.com/digitalgarage/"},
+    {title:"Entrepreneurship Specialization", platform:"Coursera", category:"Business", level:"Intermediate", duration:"~5 mo", access:"Free to audit", blurb:"Wharton faculty on opportunity spotting, growth strategy and building a founding team.", url:"https://www.coursera.org/search?query=Entrepreneurship%20Specialization"},
+    {title:"UX Design Fundamentals", platform:"Udemy", category:"Design", level:"Beginner", duration:"~6 hrs", access:"Free preview", blurb:"Wireframing, user research basics and a walk-through of a real design sprint.", url:"https://www.udemy.com/courses/search/?q=ux%20design%20free"},
+    {title:"Graphic Design Basics", platform:"Khan Academy", category:"Design", level:"Beginner", duration:"Self-paced", access:"Fully free", blurb:"Color, layout and typography principles explained through short, visual lessons.", url:"https://www.khanacademy.org/humanities/hass-storytelling"},
+    {title:"Learn Spanish: Basic Spanish 1", platform:"Udemy", category:"Language", level:"Beginner", duration:"~5 hrs", access:"Free preview", blurb:"Everyday vocabulary and pronunciation drills to get a first conversation going.", url:"https://www.udemy.com/courses/search/?q=basic%20spanish%20free"},
+    {title:"Grammar and Punctuation", platform:"Coursera", category:"Language", level:"Beginner", duration:"~4 wks", access:"Free to audit", blurb:"University of California's practical refresher for clearer writing at work or school.", url:"https://www.coursera.org/search?query=Grammar%20and%20Punctuation"},
+    {title:"Learning How to Learn", platform:"Coursera", category:"Personal Development", level:"Beginner", duration:"~4 wks", access:"Free to audit", blurb:"McGill and UCSD's research-backed course on memory, focus and beating procrastination.", url:"https://www.coursera.org/search?query=Learning%20How%20to%20Learn"},
+    {title:"CS50's Introduction to AI with Python", platform:"edX", category:"AI & ML", level:"Intermediate", duration:"~7 wks", access:"Free to audit", blurb:"Search, optimization and machine learning concepts taught through Harvard's project-driven style.", url:"https://www.edx.org/search?q=CS50%20AI"},
+    {title:"JavaScript Algorithms and Data Structures", platform:"freeCodeCamp", category:"Programming", level:"Intermediate", duration:"~300 hrs", access:"Fully free", blurb:"From basic syntax through recursion and Big-O, with a free certificate at the end.", url:"https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/"},
+    {title:"Excel Skills for Business", platform:"Coursera", category:"Business", level:"Beginner", duration:"~5 mo", access:"Free to audit", blurb:"Macquarie University's practical spreadsheet series, from formulas to dashboards.", url:"https://www.coursera.org/search?query=Excel%20Skills%20for%20Business"},
+    {title:"MIT 18.06: Linear Algebra", platform:"MIT OCW", category:"Data Science", level:"Intermediate", duration:"~13 wks", access:"Fully free", blurb:"Gilbert Strang's legendary lecture series — the math underneath most of machine learning.", url:"https://ocw.mit.edu/search/?q=18.06"}
+  ];
+
+  let activePlatform = "All";
+  let activeCategory = "all";
+  let searchTerm = "";
+  let liveStatus = "static"; // "static" | "live" | "offline"
+
+  const grid = document.getElementById("courseGrid");
+  const empty = document.getElementById("emptyState");
+  const resultCount = document.getElementById("resultCount");
+  const pillsWrap = document.getElementById("platformPills");
+  const categorySelect = document.getElementById("categorySelect");
+  const searchInput = document.getElementById("searchInput");
+
+  function buildFilters(){
+    const platforms = ["All", ...Array.from(new Set(courses.map(c => c.platform))).sort()];
+    const categories = Array.from(new Set(courses.map(c => c.category || "General"))).sort();
+
+    pillsWrap.innerHTML = "";
+    platforms.forEach(p => {
+      const btn = document.createElement("button");
+      btn.className = "pill" + (p === activePlatform ? " active" : "");
+      btn.textContent = p;
+      btn.setAttribute("aria-pressed", p === activePlatform ? "true" : "false");
+      btn.addEventListener("click", () => {
+        activePlatform = p;
+        document.querySelectorAll(".pill").forEach(el => {
+          el.classList.toggle("active", el.textContent === p);
+          el.setAttribute("aria-pressed", el.textContent === p ? "true" : "false");
+        });
+        render();
+      });
+      pillsWrap.appendChild(btn);
+    });
+
+    const currentCategoryValue = categorySelect.value || "all";
+    categorySelect.innerHTML = '<option value="all">All categories</option>';
+    categories.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      categorySelect.appendChild(opt);
+    });
+    categorySelect.value = categories.includes(currentCategoryValue) ? currentCategoryValue : "all";
+  }
+
+  categorySelect.addEventListener("change", e => {
+    activeCategory = e.target.value;
+    render();
+  });
+
+  searchInput.addEventListener("input", e => {
+    searchTerm = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  function cardHTML(c){
+    return `
+      <article class="card">
+        <div class="card-top">
+          <span class="status"><span class="bulb"></span>${c.access || "Check on platform"}</span>
+          <span class="platform-tag">${c.platform}</span>
+        </div>
+        <h3>${c.title}</h3>
+        <p>${c.blurb || `Live listing from ${c.partner ? c.partner + " via " : ""}${c.platform}.`}</p>
+        <div class="meta-row">
+          <span>${c.level || "Not specified"}</span>
+          <span>${c.duration || "See course page"}</span>
+        </div>
+        <div class="card-cta">
+          <span class="category-tag">${c.category || "General"}</span>
+          <a class="grab" href="${c.url}" target="_blank" rel="noopener noreferrer">Grab it <span class="arrow">→</span></a>
+        </div>
+      </article>
+    `;
+  }
+
+  function render(){
+    const filtered = courses.filter(c => {
+      const category = c.category || "General";
+      const matchesPlatform = activePlatform === "All" || c.platform === activePlatform;
+      const matchesCategory = activeCategory === "all" || category === activeCategory;
+      const haystack = (c.title + " " + c.platform + " " + category + " " + (c.blurb || "")).toLowerCase();
+      const matchesSearch = searchTerm === "" || haystack.includes(searchTerm);
+      return matchesPlatform && matchesCategory && matchesSearch;
+    });
+
+    grid.innerHTML = filtered.map(cardHTML).join("");
+    empty.classList.toggle("show", filtered.length === 0);
+    resultCount.textContent = `${filtered.length} result${filtered.length === 1 ? "" : "s"}`;
+  }
+
+  function updateStats(){
+    document.getElementById("statTotal").textContent = courses.length;
+    document.getElementById("statPlatforms").textContent = new Set(courses.map(c => c.platform)).size;
+
+    const tickerItems = courses.slice(0, 12).map(c => `<span><b>FREE</b> · ${c.title} — ${c.platform}</span>`);
+    document.getElementById("marqueeTrack").innerHTML = tickerItems.join("") + tickerItems.join("");
+  }
+
+  function dedupeKey(c){
+    return (c.title + "::" + c.platform).toLowerCase();
+  }
+
+  // Merge live backend results into the built-in list, skipping
+  // anything that looks like a duplicate of what's already shown.
+  async function loadLiveCourses(){
+    const eyebrow = document.querySelector(".eyebrow");
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/courses`, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) throw new Error(`Backend responded ${res.status}`);
+      const data = await res.json();
+
+      const existingKeys = new Set(courses.map(dedupeKey));
+      const fresh = (data.results || []).filter(c => !existingKeys.has(dedupeKey(c)));
+      fresh.forEach(c => { existingKeys.add(dedupeKey(c)); courses.push(c); });
+
+      liveStatus = "live";
+      if (eyebrow) eyebrow.innerHTML = `<span class="bulb"></span> Live board · ${fresh.length} fresh listing${fresh.length === 1 ? "" : "s"} just synced`;
+    } catch (err) {
+      // Backend not running or unreachable — this is expected until
+      // you deploy blink-server. The static list keeps working as-is.
+      liveStatus = "offline";
+      console.info("Blink: live backend not reachable, showing curated list only.", err.message);
+    }
+
+    buildFilters();
+    updateStats();
+    render();
+  }
+
+  buildFilters();
+  updateStats();
+  render();
+  loadLiveCourses();
+</script>
+
+<div class="modal-overlay" id="authOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn" type="button" aria-label="Close">&times;</button>
+
+    <div id="authView">
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="login" type="button">Log in</button>
+        <button class="modal-tab" data-tab="signup" type="button">Sign up</button>
+      </div>
+
+      <div class="form-msg error" id="authMsg"></div>
+
+      <form id="loginForm">
+        <h2 class="modal-title">Welcome back</h2>
+        <p class="modal-sub">Log in to update your profile.</p>
+        <div class="form-field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" autocomplete="email" required>
+        </div>
+        <div class="form-field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="modal-submit">Log in</button>
+      </form>
+
+      <form id="signupForm" style="display:none;">
+        <h2 class="modal-title">Join Blink</h2>
+        <p class="modal-sub">Create a free account — no card, no catch.</p>
+        <div class="form-field">
+          <label for="signupName">Name</label>
+          <input type="text" id="signupName" autocomplete="name" required>
+        </div>
+        <div class="form-field">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" autocomplete="email" required>
+        </div>
+        <div class="form-field">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" autocomplete="new-password" minlength="8" required>
+          <span class="form-hint">At least 8 characters.</span>
+        </div>
+        <button type="submit" class="modal-submit">Create account</button>
+      </form>
+    </div>
+
+    <div id="profileView" style="display:none;">
+      <div class="profile-head">
+        <h2 class="modal-title">Your profile</h2>
+        <button class="logout-btn" id="logoutBtn" type="button">Log out</button>
+      </div>
+      <p class="modal-sub" id="profileMemberSince"></p>
+
+      <div class="form-msg error" id="profileError"></div>
+      <div class="form-msg success" id="profileSuccess"></div>
+
+      <form id="profileForm">
+        <div class="form-field">
+          <label for="profileName">Name</label>
+          <input type="text" id="profileName" required>
+        </div>
+        <div class="form-field">
+          <label for="profileEmail">Email</label>
+          <input type="email" id="profileEmail" required>
+        </div>
+        <div class="form-field">
+          <label for="profileBio">Bio</label>
+          <textarea id="profileBio" placeholder="What are you learning right now?"></textarea>
+        </div>
+
+        <div class="form-divider">Change password (optional)</div>
+        <div class="form-field">
+          <label for="profileCurrentPassword">Current password</label>
+          <input type="password" id="profileCurrentPassword" autocomplete="current-password">
+        </div>
+        <div class="form-field">
+          <label for="profileNewPassword">New password</label>
+          <input type="password" id="profileNewPassword" autocomplete="new-password" minlength="8">
+          <span class="form-hint">Only fill both password fields if you want to change it.</span>
+        </div>
+
+        <button type="submit" class="modal-submit">Save changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const AUTH_STORAGE_KEY = "blink_token";
+
+    let currentUser = null;
+    let authToken = null;
+
+    const overlay = document.getElementById("authOverlay");
+    const authView = document.getElementById("authView");
+    const profileView = document.getElementById("profileView");
+    const authTrigger = document.getElementById("authTrigger");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const authMsg = document.getElementById("authMsg");
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const profileForm = document.getElementById("profileForm");
+    const profileError = document.getElementById("profileError");
+    const profileSuccess = document.getElementById("profileSuccess");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const accountArea = document.getElementById("accountArea");
+
+    function showMsg(el, text){
+      el.textContent = text;
+      el.classList.add("show");
+    }
+    function hideMsg(el){
+      el.textContent = "";
+      el.classList.remove("show");
+    }
+
+    function openModal(){
+      overlay.classList.add("open");
+      if (currentUser) {
+        showProfileView();
+      } else {
+        showAuthTab("login");
+      }
+    }
+    function closeModal(){
+      overlay.classList.remove("open");
+      hideMsg(authMsg);
+      hideMsg(profileError);
+      hideMsg(profileSuccess);
+    }
+
+    function showAuthTab(tab){
+      authView.style.display = "block";
+      profileView.style.display = "none";
+      hideMsg(authMsg);
+      document.querySelectorAll(".modal-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tab);
+      });
+      loginForm.style.display = tab === "login" ? "block" : "none";
+      signupForm.style.display = tab === "signup" ? "block" : "none";
+    }
+
+    function showProfileView(){
+      authView.style.display = "none";
+      profileView.style.display = "block";
+      hideMsg(profileError);
+      hideMsg(profileSuccess);
+      document.getElementById("profileName").value = currentUser.name || "";
+      document.getElementById("profileEmail").value = currentUser.email || "";
+      document.getElementById("profileBio").value = currentUser.bio || "";
+      document.getElementById("profileCurrentPassword").value = "";
+      document.getElementById("profileNewPassword").value = "";
+      const since = document.getElementById("profileMemberSince");
+      if (currentUser.created_at) {
+        const d = new Date(currentUser.created_at);
+        since.textContent = `Member since ${d.toLocaleDateString(undefined, { month: "long", year: "numeric" })}`;
+      } else {
+        since.textContent = "";
+      }
+    }
+
+    function updateAccountArea(){
+      accountArea.innerHTML = "";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      if (currentUser) {
+        btn.className = "user-pill";
+        btn.innerHTML = `<span class="bulb"></span><span class="name">${currentUser.name}</span>`;
+      } else {
+        btn.className = "account-btn";
+        btn.textContent = "Sign in";
+      }
+      btn.addEventListener("click", openModal);
+      accountArea.appendChild(btn);
+    }
+
+    function setSession(token, user){
+      authToken = token;
+      currentUser = user;
+      localStorage.setItem(AUTH_STORAGE_KEY, token);
+      updateAccountArea();
+    }
+
+    function clearSession(){
+      authToken = null;
+      currentUser = null;
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      updateAccountArea();
+    }
+
+    async function restoreSession(){
+      const saved = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!saved) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/profile`, {
+          headers: { Authorization: `Bearer ${saved}` },
+          signal: AbortSignal.timeout(6000),
+        });
+        if (!res.ok) throw new Error("Session expired");
+        const user = await res.json();
+        authToken = saved;
+        currentUser = user;
+        updateAccountArea();
+      } catch (err) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        console.info("Blink: no active session (backend unreachable or token expired).");
+      }
+    }
+
+    // ---- tab + close wiring ----
+    document.querySelectorAll(".modal-tab").forEach(btn => {
+      btn.addEventListener("click", () => showAuthTab(btn.dataset.tab));
+    });
+    modalCloseBtn.addEventListener("click", closeModal);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+    // ---- login ----
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMsg(authMsg);
+      const submitBtn = loginForm.querySelector(".modal-submit");
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: document.getElementById("loginEmail").value.trim(),
+            password: document.getElementById("loginPassword").value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Couldn't log in");
+        setSession(data.token, data.user);
+        loginForm.reset();
+        showProfileView();
+      } catch (err) {
+        showMsg(authMsg, err.message || "Couldn't reach the backend. Is it running?");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ---- signup ----
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMsg(authMsg);
+      const submitBtn = signupForm.querySelector(".modal-submit");
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: document.getElementById("signupName").value.trim(),
+            email: document.getElementById("signupEmail").value.trim(),
+            password: document.getElementById("signupPassword").value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Couldn't create your account");
+        setSession(data.token, data.user);
+        signupForm.reset();
+        showProfileView();
+      } catch (err) {
+        showMsg(authMsg, err.message || "Couldn't reach the backend. Is it running?");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ---- profile update ----
+    profileForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMsg(profileError);
+      hideMsg(profileSuccess);
+
+      const newPassword = document.getElementById("profileNewPassword").value;
+      const currentPassword = document.getElementById("profileCurrentPassword").value;
+
+      if (newPassword && !currentPassword) {
+        showMsg(profileError, "Enter your current password to set a new one.");
+        return;
+      }
+
+      const body = {
+        name: document.getElementById("profileName").value.trim(),
+        email: document.getElementById("profileEmail").value.trim(),
+        bio: document.getElementById("profileBio").value,
+      };
+      if (newPassword) {
+        body.currentPassword = currentPassword;
+        body.newPassword = newPassword;
+      }
+
+      const submitBtn = profileForm.querySelector(".modal-submit");
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/profile`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Couldn't save your changes");
+        currentUser = data;
+        updateAccountArea();
+        document.getElementById("profileCurrentPassword").value = "";
+        document.getElementById("profileNewPassword").value = "";
+        showMsg(profileSuccess, "Saved.");
+      } catch (err) {
+        showMsg(profileError, err.message || "Couldn't reach the backend. Is it running?");
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      clearSession();
+      closeModal();
+    });
+
+    updateAccountArea();
+    restoreSession();
+  })();
+</script>
+</body>
+</html>
